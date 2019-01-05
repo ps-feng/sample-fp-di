@@ -2,6 +2,7 @@ package com.sample.todos
 
 import com.sample.todos.domain.Todo
 import com.sample.todos.domain.TodoFetcherFn
+import com.sample.todos.domain.getCompletedTodos
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -14,7 +15,7 @@ fun getTodos(request: ServerRequest, fetchTodos: TodoFetcherFn): Mono<ServerResp
 
     return if (userId != null) {
         val todosResponseMono =
-            fetchTodos(userId)
+            getCompletedTodos(fetchTodos, userId)
                 .map { it.toResponse(userId) }
                 .onErrorResume { e -> internalServerError(e) }
 

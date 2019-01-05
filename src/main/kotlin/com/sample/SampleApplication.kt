@@ -3,8 +3,7 @@ package com.sample
 import arrow.syntax.function.partially1
 import com.sample.ExternalServices.Companion.TODOS_BASE_URL
 import com.sample.todos.data.getUserTodos
-import com.sample.todos.domain.Todo
-import com.sample.todos.domain.getCompletedTodos
+import com.sample.todos.domain.TodoFetcherFn
 import com.sample.todos.getTodos
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -16,7 +15,6 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.router
-import reactor.core.publisher.Mono
 
 @SpringBootApplication
 class SampleApplication
@@ -34,14 +32,13 @@ class Router @Autowired constructor(
     fun routes(): RouterFunction<ServerResponse> = router {
         accept(MediaType.APPLICATION_JSON).nest {
             GET("/user/{id}/completedtodos") {
-                getTodos(it, getCompletedTodosInteractorFn())
+                getTodos(it, getTodosFetcherFn())
             }
         }
     }
 
-    private fun getCompletedTodosInteractorFn(): (userId: Int) -> Mono<List<Todo>> {
-        val getUserTodosFn = ::getUserTodos.partially1(todosBaseUrl)
-        return ::getCompletedTodos.partially1(getUserTodosFn)
+    private fun getTodosFetcherFn(): TodoFetcherFn {
+        return ::getUserTodos.partially1(todosBaseUrl)
     }
 }
 
